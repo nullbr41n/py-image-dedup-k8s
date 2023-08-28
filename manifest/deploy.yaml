@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-image-dedup
+  namespace: nullbr41n
+spec:
+  selector:
+    matchLabels:
+      app: py-image-dedup
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: py-image-dedup
+    spec:
+      containers:
+      - name: py-image-dedup
+        image: markusressel/py-image-dedup:v2.0.1
+        env:
+        - name: PY_IMAGE_DEDUP_DRY_RUN
+          value: "False"
+        - name: PY_IMAGE_DEDUP_ANALYSIS_SOURCE_DIRECTORIES
+          value: "/data/media/Photos/"
+        - name: PY_IMAGE_DEDUP_ANALYSIS_RECURSIVE
+          value: "True"
+        - name: PY_IMAGE_DEDUP_ANALYSIS_ACROSS_DIRS
+          value: "True"
+        - name: PY_IMAGE_DEDUP_ANALYSIS_USE_EXIF_DATA
+          value: "False"
+        - name: PY_IMAGE_DEDUP_DEDUPLICATION_DUPLICATES_TARGET_DIRECTORY
+          value: "/data/media/duplicates/"
+        - name: PY_IMAGE_DEDUP_ELASTICSEARCH_AUTO_CREATE_INDEX
+          value: "True"
+        - name: PY_IMAGE_DEDUP_ANALYSIS_FILE_EXTENSIONS
+          value: ".png,.jpg,.jpeg"
+        - name: PY_IMAGE_DEDUP_ANALYSIS_THREADS
+          value: "2"
+        - name: PY_IMAGE_DEDUP_ELASTICSEARCH_HOST
+          value: "elasticsearch.nullbr41n.svc.cluster.local"
+        - name: PY_IMAGE_DEDUP_ELASTICSEARCH_PORT
+          value: "9200"
+        - name: PY_IMAGE_DEDUP_ELASTICSEARCH_INDEX
+          value: images
+        - name: PY_IMAGE_DEDUP_ELASTICSEARCH_MAX_DISTANCE
+          value: "0.1"
+        - name: PY_IMAGE_DEDUP_REMOVE_EMPTY_FOLDERS
+          value: "False"
+        - name: PY_IMAGE_DEDUP_STATS_ENABLED
+          value: "True"
+        - name: PY_IMAGE_DEDUP_STATS_PORT
+          value: "8000"
+        - name: PV_DIR
+          value: "/data/media"
+        volumeMounts:
+        - mountPath: /data/media
+          name: pv-volume
+      volumes:
+      - hostPath:
+          path: /mnt/nas/media
+          type: ""
+        name: pv-volume
